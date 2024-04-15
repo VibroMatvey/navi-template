@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\DataProvider\NodeNavigateDataProvider;
@@ -39,7 +40,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
             provider: NodeNavigateDataProvider::class
         ),
         new GetCollection(),
-        new Post()
+        new Post(),
+        new Patch(),
+        new Delete(),
     ],
     normalizationContext: ['groups' => ['node:read']],
     denormalizationContext: ['groups' => ['node:write']],
@@ -51,19 +54,19 @@ class Node
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['point:read', 'node:read'])]
+    #[Groups(['node:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'nodes')]
-    #[Groups(['node:read', 'node:write'])]
     private ?Point $point = null;
+
+    #[Groups(['node:read', 'node:write'])]
+    private ?int $point_id = null;
 
     /**
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'nodes')]
-    #[ApiProperty(example: ['/api/nodes/id'])]
-    #[Groups(['node:read', 'node:write'])]
     private Collection $nodes;
 
     public function __construct()
@@ -74,6 +77,22 @@ class Node
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPointId(): ?int
+    {
+        return $this->point_id;
+    }
+
+    /**
+     * @param int|null $point_id
+     */
+    public function setPointId(?int $point_id): void
+    {
+        $this->point_id = $point_id;
     }
 
     public function getPoint(): ?Point

@@ -2,39 +2,38 @@
 
 namespace App\Serializer;
 
-use App\Entity\Floor;
+use App\Entity\Point;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Vich\UploaderBundle\Storage\StorageInterface;
 
-readonly class FloorNormalizer implements NormalizerInterface
+readonly class PointNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private NormalizerInterface $normalizer,
-        private StorageInterface    $storage
+        private NormalizerInterface $normalizer
     ) {
     }
 
     public function normalize($object, string $format = null, array $context = []): array
     {
-        /* @var Floor $object */
+        /* @var Point $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $data['mapImage'] = $this->storage->resolveUri($object, 'mapImageFile');
+        $data['floor_id'] = $object->getFloor()?->getId();
+        unset($data['floor']);
 
         return $data;
     }
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
-        return $data instanceof Floor;
+        return $data instanceof Point;
     }
 
     public function getSupportedTypes(?string $format): array
     {
         return [
-            Floor::class => true,
+            Point::class => true,
         ];
     }
 }

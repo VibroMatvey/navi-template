@@ -36,15 +36,15 @@ class Floor
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['floor:read'])]
+    #[Groups(['floor:read', 'point:read','node:read'])]
     private ?int $id = null;
 
-    #[Groups(['floor:read'])]
     #[ORM\Column(length: 255)]
+    #[Groups(['floor:read', 'point:read','node:read'])]
     private ?string $name = null;
 
-    #[Groups(['floor:read'])]
     #[ORM\Column(length: 255)]
+    #[Groups(['floor:read', 'point:read','node:read'])]
     private ?string $mapImage = null;
 
     #[Vich\UploadableField(mapping: 'floor_map_images', fileNameProperty: 'mapImage')]

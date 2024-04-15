@@ -21,6 +21,24 @@ class FloorRepository extends ServiceEntityRepository
         parent::__construct($registry, Floor::class);
     }
 
+    public function save(Floor $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Floor $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     //    /**
     //     * @return Floor[] Returns an array of Floor objects
     //     */

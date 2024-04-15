@@ -2,39 +2,45 @@
 
 namespace App\Serializer;
 
-use App\Entity\Floor;
+use App\Entity\Node;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Vich\UploaderBundle\Storage\StorageInterface;
 
-readonly class FloorNormalizer implements NormalizerInterface
+readonly class NodeNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private NormalizerInterface $normalizer,
-        private StorageInterface    $storage
+        private NormalizerInterface $normalizer
     ) {
     }
 
     public function normalize($object, string $format = null, array $context = []): array
     {
-        /* @var Floor $object */
+        /* @var Node $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $data['mapImage'] = $this->storage->resolveUri($object, 'mapImageFile');
+        $nodes = [];
+
+        foreach ($object->getNodes() as $node) {
+            $nodes[] = $node->getId();
+        }
+
+        $data['nodes'] = $nodes;
+        $data['point_id'] = $object->getPoint()?->getId();
+        unset($data['point']);
 
         return $data;
     }
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
-        return $data instanceof Floor;
+        return $data instanceof Node;
     }
 
     public function getSupportedTypes(?string $format): array
     {
         return [
-            Floor::class => true,
+            Node::class => true,
         ];
     }
 }
