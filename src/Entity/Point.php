@@ -1,0 +1,165 @@
+<?php
+
+namespace App\Entity;
+
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\Repository\PointRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post()
+    ],
+    normalizationContext: ['groups' => ['point:read']],
+    denormalizationContext: ['groups' => ['point:write']],
+    paginationEnabled: false
+)]
+#[ORM\Entity(repositoryClass: PointRepository::class)]
+class Point
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    #[Groups(['point:read', 'floor:read', 'node:read', 'node:write'])]
+    private ?int $id = null;
+
+    #[ORM\Column]
+    #[Groups(['point:read', 'floor:read', 'node:read', 'node:write', 'point:write'])]
+    private ?int $x = null;
+
+    #[ORM\Column]
+    #[Groups(['point:read', 'floor:read', 'node:read', 'node:write', 'point:write'])]
+    private ?int $y = null;
+
+    #[ORM\ManyToOne(inversedBy: 'points')]
+    #[ApiProperty(example: '/api/floors/id')]
+    #[Groups(['point:read', 'node:read', 'node:write', 'point:write'])]
+    private ?Floor $floor = null;
+
+    /**
+     * @var Collection<int, Area>
+     */
+    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points')]
+    #[ApiProperty(example: ['/api/areas/id'])]
+    private Collection $areas;
+
+    /**
+     * @var Collection<int, Node>
+     */
+    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['persist'])]
+    #[ApiProperty(example: ['/api/nodes/id'])]
+    private Collection $nodes;
+
+    public function __construct()
+    {
+        $this->areas = new ArrayCollection();
+        $this->nodes = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getX(): ?int
+    {
+        return $this->x;
+    }
+
+    public function setX(int $x): static
+    {
+        $this->x = $x;
+
+        return $this;
+    }
+
+    public function getY(): ?int
+    {
+        return $this->y;
+    }
+
+    public function setY(int $y): static
+    {
+        $this->y = $y;
+
+        return $this;
+    }
+
+    public function getFloor(): ?Floor
+    {
+        return $this->floor;
+    }
+
+    public function setFloor(?Floor $floor): static
+    {
+        $this->floor = $floor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Area>
+     */
+    public function getAreas(): Collection
+    {
+        return $this->areas;
+    }
+
+    public function addArea(Area $area): static
+    {
+        if (!$this->areas->contains($area)) {
+            $this->areas->add($area);
+            $area->addPoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArea(Area $area): static
+    {
+        if ($this->areas->removeElement($area)) {
+            $area->removePoint($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Node>
+     */
+    public function getNodes(): Collection
+    {
+        return $this->nodes;
+    }
+
+    public function addNode(Node $node): static
+    {
+        if (!$this->nodes->contains($node)) {
+            $this->nodes->add($node);
+            $node->setPoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNode(Node $node): static
+    {
+        if ($this->nodes->removeElement($node)) {
+            // set the owning side to null (unless already changed)
+            if ($node->getPoint() === $this) {
+                $node->setPoint(null);
+            }
+        }
+
+        return $this;
+    }
+}

@@ -1,0 +1,45 @@
+<?php
+
+namespace App\DataProvider;
+
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
+use App\Entity\Node;
+use App\Repository\NodeRepository;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class NodeNavigateDataProvider implements ProviderInterface
+{
+    public function __construct(
+        private readonly NodeRepository $nodeRepository
+    )
+    {
+    }
+
+    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
+    {
+        return Node::class === $resourceClass;
+    }
+
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    {
+        if (!key_exists('from', $context['filters']) or !key_exists('to', $context['filters'])) {
+            throw new BadRequestException('from and to required');
+        }
+
+        $from = $this->nodeRepository->find($context['filters']['from']);
+        $to = $this->nodeRepository->find($context['filters']['to']);
+
+        if (!$from or !$to) {
+            throw new NotFoundHttpException('nodes not found');
+        }
+
+        return [
+           'from' => $from,
+           'to' => $to
+        ];
+    }
+}
