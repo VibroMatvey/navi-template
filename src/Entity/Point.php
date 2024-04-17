@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -11,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Point\PointCreateController;
 use App\Controller\Point\PointUpdateController;
+use App\Dto\PointDto;
 use App\Repository\PointRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,11 +23,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new GetCollection(),
         new Post(
             controller: PointCreateController::class,
-            denormalizationContext: ['groups' => ['point:write']],
+            input: PointDto::class
         ),
         new Patch(
             controller: PointUpdateController::class,
-            denormalizationContext: ['groups' => ['point:write']],
+            input: PointDto::class
         ),
         new Delete()
     ],
@@ -40,18 +40,19 @@ class Point
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['point:read'])]
+    #[Groups(['point:read', 'node:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['point:read', 'point:write'])]
+    #[Groups(['point:read', 'node:read'])]
     private ?int $x = null;
 
     #[ORM\Column]
-    #[Groups(['point:read', 'point:write'])]
+    #[Groups(['point:read', 'node:read'])]
     private ?int $y = null;
 
     #[ORM\ManyToOne(inversedBy: 'points')]
+    #[Groups(['point:read', 'node:read'])]
     private ?Floor $floor = null;
 
     /**
@@ -66,9 +67,6 @@ class Point
     #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['persist'])]
     private Collection $nodes;
 
-    #[Groups(['point:write', 'point:read'])]
-    private ?int $floor_id = null;
-
     public function __construct()
     {
         $this->areas = new ArrayCollection();
@@ -78,22 +76,6 @@ class Point
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getFloorId(): ?int
-    {
-        return $this->floor_id;
-    }
-
-    /**
-     * @param int|null $floor_id
-     */
-    public function setFloorId(?int $floor_id): void
-    {
-        $this->floor_id = $floor_id;
     }
 
     public function getX(): ?int

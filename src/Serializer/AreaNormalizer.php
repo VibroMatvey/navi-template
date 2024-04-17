@@ -28,8 +28,7 @@ readonly class AreaNormalizer implements NormalizerInterface
         }
 
         $data['points'] = $points;
-        $data['floor_id'] = $object->getFloor()?->getId();
-        unset($data['floor']);
+        $data['floor'] = $object->getFloor()?->getId();
 
         return $data;
     }

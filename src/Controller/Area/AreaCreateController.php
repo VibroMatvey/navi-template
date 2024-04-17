@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Controller\Point;
+namespace App\Controller\Area;
 
-use App\Dto\PointDto;
-use App\Entity\Point;
+use App\Dto\AreaDto;
+use App\Entity\Area;
+use App\Repository\AreaRepository;
 use App\Repository\FloorRepository;
 use App\Repository\PointRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,40 +17,45 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsController]
-class PointCreateController extends AbstractController
+class AreaCreateController extends AbstractController
 {
     public function __construct(
+        private readonly FloorRepository $floorRepository,
         private readonly PointRepository $pointRepository,
-        private readonly FloorRepository $floorRepository
+        private readonly AreaRepository $areaRepository,
     )
     {
     }
 
     public function __invoke(Request $request, SerializerInterface  $serializer, ValidatorInterface $validator): JsonResponse
     {
-        $body = $serializer->deserialize($request->getContent(), PointDto::class, 'json');
+        $body = $serializer->deserialize($request->getContent(), AreaDto::class, 'json');
         $errors = $validator->validate($body);
         if (count($errors) > 0) {
             throw new BadRequestHttpException((string) $errors);
         }
 
-        $x = $body->x;
-        $y = $body->y;
-        $floor_id = $body->floor;
+        $area = new Area();
 
-        $floor = $this->floorRepository->find($floor_id);
+        $floor = $this->floorRepository->find($body->getFloor());
 
         if (!$floor) {
+            $floor_id= $body->getFloor();
             throw new NotFoundHttpException("floor with id $floor_id not found");
         }
 
-        $point = new Point();
-        $point->setX($x);
-        $point->setY($y);
-        $point->setFloor($floor);
+        $area->setFloor($floor);
 
-        $this->pointRepository->save($point, true);
+        foreach ($body->getPoints() as $point_id) {
+            $point_item = $this->pointRepository->find($point_id);
+            if (!$point_item) {
+                throw new NotFoundHttpException("point with id $point_id not found");
+            }
+            $area->addPoint($point_item);
+        }
 
-        return $this->json($point, 201, [], ['groups' => 'point:read']);
+        $this->areaRepository->save($area, true);
+
+        return $this->json($area, 201, [], ['groups' => 'area:read']);
     }
 }

@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    #[Route(path: '/login', name: 'app_login')]
+    #[Route(path: '/admin/login', name: 'app_login')]
     public function login(AuthenticationUtils    $authenticationUtils,
                           UserRepository         $repository,
                           EntityManagerInterface $entityManager): Response
@@ -86,20 +86,20 @@ class SecurityController extends AbstractController
             'forgot_password_label' => 'Забыли пароль?',
 
             // whether to enable or not the "remember me" checkbox (default: false)
-            'remember_me_enabled' => false,
+            'remember_me_enabled' => true,
 
             // remember me name form field (default: '_remember_me')
             'remember_me_parameter' => 'custom_remember_me_param',
 
             // whether to check by default the "remember me" checkbox (default: false)
-            'remember_me_checked' => false,
+            'remember_me_checked' => true,
 
             // the label displayed for the remember me checkbox (the |trans filter is applied to it)
             'remember_me_label' => 'Запомнить',
         ]);
     }
 
-    #[Route(path: '/logout', name: 'app_logout')]
+    #[Route(path: '/admin/logout', name: 'app_logout')]
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');

@@ -19,8 +19,7 @@ readonly class PointNormalizer implements NormalizerInterface
         /* @var Point $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $data['floor_id'] = $object->getFloor()?->getId();
-        unset($data['floor']);
+        $data['floor'] = $object->getFloor()?->getId();
 
         return $data;
     }

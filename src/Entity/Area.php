@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Area\AreaCreateController;
+use App\Controller\Area\AreaUpdateController;
+use App\Dto\AreaDto;
 use App\Repository\AreaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,13 +20,20 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     operations: [
         new Get(),
-        new GetCollection(),
-        new Post(),
-        new Patch(),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Post(
+            controller: AreaCreateController::class,
+            input: AreaDto::class
+        ),
+        new Patch(
+            controller: AreaUpdateController::class,
+            input: AreaDto::class
+        ),
         new Delete()
     ],
     normalizationContext: ['groups' => ['area:read']],
-    denormalizationContext: ['groups' => ['area:write']],
     paginationEnabled: false,
 )]
 #[ORM\Entity(repositoryClass: AreaRepository::class)]
@@ -44,35 +53,24 @@ class Area
     private Collection $points;
 
     #[ORM\ManyToOne(inversedBy: 'areas')]
+    #[Groups(['area:read'])]
     private ?Floor $floor = null;
 
-    #[Groups(['area:read', 'area:write'])]
-    private ?int $floor_id = null;
+    /**
+     * @var Collection<int, MapObject>
+     */
+    #[ORM\ManyToMany(targetEntity: MapObject::class, mappedBy: 'areas')]
+    private Collection $mapObjects;
 
     public function __construct()
     {
         $this->points = new ArrayCollection();
+        $this->mapObjects = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getFloorId(): ?int
-    {
-        return $this->floor_id;
-    }
-
-    /**
-     * @param int|null $floor_id
-     */
-    public function setFloorId(?int $floor_id): void
-    {
-        $this->floor_id = $floor_id;
     }
 
     /**
@@ -92,6 +90,14 @@ class Area
         return $this;
     }
 
+    /**
+     * @param Collection $points
+     */
+    public function setPoints(Collection $points): void
+    {
+        $this->points = $points;
+    }
+
     public function removePoint(Point $point): static
     {
         $this->points->removeElement($point);
@@ -107,6 +113,33 @@ class Area
     public function setFloor(?Floor $floor): static
     {
         $this->floor = $floor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MapObject>
+     */
+    public function getMapObjects(): Collection
+    {
+        return $this->mapObjects;
+    }
+
+    public function addMapObject(MapObject $mapObject): static
+    {
+        if (!$this->mapObjects->contains($mapObject)) {
+            $this->mapObjects->add($mapObject);
+            $mapObject->addArea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMapObject(MapObject $mapObject): static
+    {
+        if ($this->mapObjects->removeElement($mapObject)) {
+            $mapObject->removeArea($this);
+        }
 
         return $this;
     }

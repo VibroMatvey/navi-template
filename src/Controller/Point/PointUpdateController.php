@@ -2,6 +2,7 @@
 
 namespace App\Controller\Point;
 
+use App\Dto\PointDto;
 use App\Entity\Point;
 use App\Repository\FloorRepository;
 use App\Repository\PointRepository;
@@ -10,6 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsController]
 class PointUpdateController extends AbstractController
@@ -21,11 +25,11 @@ class PointUpdateController extends AbstractController
     {
     }
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request, SerializerInterface  $serializer): JsonResponse
     {
         $id = $request->attributes->all()['id'];
-        $body = json_decode($request->getContent(), true);
 
+        $body = $serializer->deserialize($request->getContent(), PointDto::class, 'json');
 
         $point = $this->pointRepository->find($id);
 
@@ -33,22 +37,20 @@ class PointUpdateController extends AbstractController
             throw new NotFoundHttpException("point with id $id not found");
         }
 
-        if (key_exists('floor_id', $body)) {
-            $floor = $this->floorRepository->find($body['floor_id']);
+        if ($body->getFloor()) {
+            $floor = $this->floorRepository->find($body->floor);
 
             if (!$floor) {
-                throw new NotFoundHttpException("floor with id $body[floor_id] not found");
+                throw new NotFoundHttpException("floor with id $body->floor not found");
             }
-
-            $point->setFloor($floor);
         }
 
-        if (key_exists('x', $body)) {
-            $point->setX($body['x']);
+        if ($body->getX()) {
+            $point->setX($body->x);
         }
 
-        if (key_exists('y', $body)) {
-            $point->setY($body['y']);
+        if ($body->getY()) {
+            $point->setY($body->y);
         }
 
         $this->pointRepository->save($point, true);

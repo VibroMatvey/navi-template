@@ -8,13 +8,12 @@ use ApiPlatform\State\ProviderInterface;
 use App\Entity\Node;
 use App\Repository\NodeRepository;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class NodeNavigateDataProvider implements ProviderInterface
+readonly class NodeNavigateDataProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly NodeRepository $nodeRepository
+        private NodeRepository $nodeRepository
     )
     {
     }

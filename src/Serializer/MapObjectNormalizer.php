@@ -2,11 +2,11 @@
 
 namespace App\Serializer;
 
-use App\Entity\Node;
+use App\Entity\MapObject;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-readonly class NodeNormalizer implements NormalizerInterface
+readonly class MapObjectNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
@@ -16,29 +16,35 @@ readonly class NodeNormalizer implements NormalizerInterface
 
     public function normalize($object, string $format = null, array $context = []): array
     {
-        /* @var Node $object */
+        /* @var MapObject $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
         $nodes = [];
+        $areas = [];
 
         foreach ($object->getNodes() as $node) {
             $nodes[] = $node->getId();
         }
 
+        foreach ($object->getAreas() as $area) {
+            $areas[] = $area->getId();
+        }
+
         $data['nodes'] = $nodes;
+        $data['areas'] = $areas;
 
         return $data;
     }
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
-        return $data instanceof Node;
+        return $data instanceof MapObject;
     }
 
     public function getSupportedTypes(?string $format): array
     {
         return [
-            Node::class => true,
+            MapObject::class => true,
         ];
     }
 }

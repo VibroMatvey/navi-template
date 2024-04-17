@@ -9,7 +9,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\Node\NodeCreateController;
+use App\Controller\Node\NodeUpdateController;
 use App\DataProvider\NodeNavigateDataProvider;
+use App\Dto\NodeDto;
 use App\Repository\NodeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -40,12 +43,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
             provider: NodeNavigateDataProvider::class
         ),
         new GetCollection(),
-        new Post(),
-        new Patch(),
+        new Post(
+            controller: NodeCreateController::class,
+            input: NodeDto::class
+        ),
+        new Patch(
+            controller: NodeUpdateController::class,
+            input: NodeDto::class
+        ),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['node:read']],
-    denormalizationContext: ['groups' => ['node:write']],
     paginationEnabled: false
 )]
 #[ORM\Entity(repositoryClass: NodeRepository::class)]
@@ -58,41 +66,31 @@ class Node
     private ?int $id = null;
 
     #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'nodes')]
+    #[Groups(['node:read'])]
     private ?Point $point = null;
-
-    #[Groups(['node:read', 'node:write'])]
-    private ?int $point_id = null;
 
     /**
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'nodes')]
+    #[Groups(['node:read'])]
     private Collection $nodes;
+
+    /**
+     * @var Collection<int, MapObject>
+     */
+    #[ORM\ManyToMany(targetEntity: MapObject::class, mappedBy: 'nodes')]
+    private Collection $mapObjects;
 
     public function __construct()
     {
         $this->nodes = new ArrayCollection();
+        $this->mapObjects = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getPointId(): ?int
-    {
-        return $this->point_id;
-    }
-
-    /**
-     * @param int|null $point_id
-     */
-    public function setPointId(?int $point_id): void
-    {
-        $this->point_id = $point_id;
     }
 
     public function getPoint(): ?Point
@@ -105,6 +103,14 @@ class Node
         $this->point = $point;
 
         return $this;
+    }
+
+    /**
+     * @param Collection $nodes
+     */
+    public function setNodes(Collection $nodes): void
+    {
+        $this->nodes = $nodes;
     }
 
     /**
@@ -127,6 +133,33 @@ class Node
     public function removeNode(self $node): static
     {
         $this->nodes->removeElement($node);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MapObject>
+     */
+    public function getMapObjects(): Collection
+    {
+        return $this->mapObjects;
+    }
+
+    public function addMapObject(MapObject $mapObject): static
+    {
+        if (!$this->mapObjects->contains($mapObject)) {
+            $this->mapObjects->add($mapObject);
+            $mapObject->addNode($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMapObject(MapObject $mapObject): static
+    {
+        if ($this->mapObjects->removeElement($mapObject)) {
+            $mapObject->removeNode($this);
+        }
 
         return $this;
     }
