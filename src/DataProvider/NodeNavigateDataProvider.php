@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Node;
 use App\Repository\NodeRepository;
+use App\Service\AStarService;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -36,9 +37,6 @@ readonly class NodeNavigateDataProvider implements ProviderInterface
             throw new NotFoundHttpException('nodes not found');
         }
 
-        return [
-           'from' => $from,
-           'to' => $to
-        ];
+        return AStarService::find_path($from, $to, $this->nodeRepository);
     }
 }

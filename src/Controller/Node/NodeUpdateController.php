@@ -43,7 +43,7 @@ class NodeUpdateController extends AbstractController
         if ($body->getPoint()) {
             $point = $this->pointRepository->find($node->getPoint()->getId());
 
-            if ($body->point->getFloor()) {
+            if ($body->point->getFloor() !== null) {
                 $floor_id = $body->point->getFloor();
                 $floor = $this->floorRepository->find($floor_id);
 
@@ -54,18 +54,19 @@ class NodeUpdateController extends AbstractController
                 $point->setFloor($floor);
             }
 
-            if ($body->point->getX()) {
+
+            if ($body->point->getX() !== null) {
                 $point->setX($body->point->x);
             }
 
-            if ($body->point->getY()) {
+            if ($body->point->getY() !== null) {
                 $point->setY($body->point->y);
             }
 
             $node->setPoint($point);
         }
 
-        if ($body->getNodes()) {
+        if ($body->getNodes() !== null) {
             $nodes = new ArrayCollection();
             foreach ($body->nodes as $node_id) {
                 $node_item = $this->nodeRepository->find($node_id);

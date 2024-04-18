@@ -21,7 +21,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(),
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')"
         ),
         new Post(
             controller: AreaCreateController::class,
@@ -48,7 +47,7 @@ class Area
     /**
      * @var Collection<int, Point>
      */
-    #[ORM\ManyToMany(targetEntity: Point::class, inversedBy: 'areas', cascade: ['remove'])]
+    #[ORM\ManyToMany(targetEntity: Point::class, inversedBy: 'areas', cascade: ['all'])]
     #[Groups(['area:read'])]
     private Collection $points;
 

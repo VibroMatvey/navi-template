@@ -21,13 +21,13 @@ readonly class AreaNormalizer implements NormalizerInterface
         /* @var Area $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $points = [];
-
-        foreach ($object->getPoints() as $point) {
-            $points[] = $point->getId();
-        }
-
-        $data['points'] = $points;
+//        $points = [];
+//
+//        foreach ($object->getPoints() as $point) {
+//            $points[] = $point->getId();
+//        }
+//
+//        $data['points'] = $points;
         $data['floor'] = $object->getFloor()?->getId();
 
         return $data;

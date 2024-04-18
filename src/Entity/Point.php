@@ -41,25 +41,25 @@ class Point
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['point:read', 'node:read'])]
+    #[Groups(['point:read', 'node:read', 'area:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['point:read', 'node:read'])]
+    #[Groups(['point:read', 'node:read', 'area:read'])]
     private ?float $x = null;
 
     #[ORM\Column]
-    #[Groups(['point:read', 'node:read'])]
+    #[Groups(['point:read', 'node:read', 'area:read'])]
     private ?float $y = null;
 
     #[ORM\ManyToOne(inversedBy: 'points')]
-    #[Groups(['point:read', 'node:read'])]
+    #[Groups(['point:read', 'node:read', 'area:read'])]
     private ?Floor $floor = null;
 
     /**
      * @var Collection<int, Area>
      */
-    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points', cascade: ['remove'])]
+    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points', cascade: ['all'])]
     private Collection $areas;
 
     /**

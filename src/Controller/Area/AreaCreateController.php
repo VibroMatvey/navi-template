@@ -4,6 +4,7 @@ namespace App\Controller\Area;
 
 use App\Dto\AreaDto;
 use App\Entity\Area;
+use App\Entity\Point;
 use App\Repository\AreaRepository;
 use App\Repository\FloorRepository;
 use App\Repository\PointRepository;
@@ -46,12 +47,13 @@ class AreaCreateController extends AbstractController
 
         $area->setFloor($floor);
 
-        foreach ($body->getPoints() as $point_id) {
-            $point_item = $this->pointRepository->find($point_id);
-            if (!$point_item) {
-                throw new NotFoundHttpException("point with id $point_id not found");
-            }
-            $area->addPoint($point_item);
+        foreach ($body->getPoints() as $point_array) {
+            $floor = $this->floorRepository->find($point_array['floor']);
+            $point = new Point();
+            $point->setX($point_array['x']);
+            $point->setY($point_array['y']);
+            $point->setFloor($floor);
+            $area->addPoint($point);
         }
 
         $this->areaRepository->save($area, true);

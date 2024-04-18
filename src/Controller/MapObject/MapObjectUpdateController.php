@@ -37,7 +37,7 @@ class MapObjectUpdateController  extends AbstractController
             throw new NotFoundHttpException("map object with id $id not found");
         }
 
-        if (count($body->getNodes())) {
+        if ($body->getNodes() !== null) {
             $nodes = new ArrayCollection();
             foreach ($body->getNodes() as $node_id) {
                 $node_item = $this->nodeRepository->find($node_id);
@@ -49,7 +49,7 @@ class MapObjectUpdateController  extends AbstractController
             $mapObject->setNodes($nodes);
         }
 
-        if (count($body->getAreas())) {
+        if ($body->getAreas() !== null) {
             $areas = new ArrayCollection();
             foreach ($body->getAreas() as $area_id) {
                 $area_item = $this->areaRepository->find($area_id);

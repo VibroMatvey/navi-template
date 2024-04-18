@@ -3,6 +3,7 @@
 namespace App\Controller\Area;
 
 use App\Dto\AreaDto;
+use App\Entity\Point;
 use App\Repository\AreaRepository;
 use App\Repository\FloorRepository;
 use App\Repository\PointRepository;
@@ -37,7 +38,7 @@ class AreaUpdateController extends AbstractController
             throw new NotFoundHttpException("area with id $id not found");
         }
 
-        if ($body->getFloor()) {
+        if ($body->getFloor() !== null) {
             $floor = $this->floorRepository->find($body->getFloor());
 
             if (!$floor) {
@@ -48,16 +49,19 @@ class AreaUpdateController extends AbstractController
             $area->setFloor($floor);
         }
 
-        if ($body->getPoints()) {
+        if ($body->getPoints() !== null) {
             $points = new ArrayCollection();
-            foreach ($body->getPoints() as $point_id) {
-                $point_item = $this->pointRepository->find($point_id);
-                if (!$point_item) {
-                    throw new NotFoundHttpException("point with id $point_id not found");
-                }
-                $points->add($point_item);
+            foreach ($area->getPoints() as $point) {
+                $this->pointRepository->remove($point, true);
             }
-
+            foreach ($body->getPoints() as $point_array) {
+                $floor = $this->floorRepository->find($point_array['floor']);
+                $point = new Point();
+                $point->setX($point_array['x']);
+                $point->setY($point_array['y']);
+                $point->setFloor($floor);
+                $points->add($point);
+            }
             $area->setPoints($points);
         }
 
