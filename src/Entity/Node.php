@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -18,6 +19,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ApiResource(
     operations: [
@@ -65,7 +67,7 @@ class Node
     #[Groups(['node:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'nodes')]
+    #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'nodes')]
     #[Groups(['node:read'])]
     private ?Point $point = null;
 
@@ -73,7 +75,6 @@ class Node
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'nodes')]
-    #[Groups(['node:read'])]
     private Collection $nodes;
 
     /**

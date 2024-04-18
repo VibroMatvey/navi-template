@@ -54,12 +54,14 @@ class NodeCreateController extends AbstractController
 
         $node = new Node();
         $node->setPoint($point);
-        foreach ($body->nodes as $node_id) {
-            $node_item = $this->nodeRepository->find($node_id);
-            if (!$node_item) {
-                throw new BadRequestHttpException("node with id $node_id not found");
+        if ($body->nodes) {
+            foreach ($body->nodes as $node_id) {
+                $node_item = $this->nodeRepository->find($node_id);
+                if (!$node_item) {
+                    throw new BadRequestHttpException("node with id $node_id not found");
+                }
+                $node->addNode($node_item);
             }
-            $node->addNode($node_item);
         }
 
         $this->nodeRepository->save($node, true);

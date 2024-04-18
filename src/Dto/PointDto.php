@@ -7,10 +7,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class PointDto
 {
     #[Assert\NotNull]
-    public ?int $x = null;
+    public ?float $x = null;
 
     #[Assert\NotNull]
-    public ?int $y = null;
+    public ?float $y = null;
 
     #[Assert\NotNull]
     public ?int $floor = null;
@@ -23,18 +23,12 @@ final class PointDto
         return $this->floor;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getX(): ?int
+    public function getX(): ?float
     {
         return $this->x;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getY(): ?int
+    public function getY(): ?float
     {
         return $this->y;
     }

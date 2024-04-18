@@ -16,6 +16,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ApiResource(
     operations: [
@@ -45,11 +46,11 @@ class Point
 
     #[ORM\Column]
     #[Groups(['point:read', 'node:read'])]
-    private ?int $x = null;
+    private ?float $x = null;
 
     #[ORM\Column]
     #[Groups(['point:read', 'node:read'])]
-    private ?int $y = null;
+    private ?float $y = null;
 
     #[ORM\ManyToOne(inversedBy: 'points')]
     #[Groups(['point:read', 'node:read'])]
@@ -58,13 +59,13 @@ class Point
     /**
      * @var Collection<int, Area>
      */
-    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points')]
+    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points', cascade: ['remove'])]
     private Collection $areas;
 
     /**
      * @var Collection<int, Node>
      */
-    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['all'])]
     private Collection $nodes;
 
     public function __construct()
@@ -78,24 +79,24 @@ class Point
         return $this->id;
     }
 
-    public function getX(): ?int
+    public function getX(): ?float
     {
         return $this->x;
     }
 
-    public function setX(int $x): static
+    public function setX(float $x): static
     {
         $this->x = $x;
 
         return $this;
     }
 
-    public function getY(): ?int
+    public function getY(): ?float
     {
         return $this->y;
     }
 
-    public function setY(int $y): static
+    public function setY(float $y): static
     {
         $this->y = $y;
 

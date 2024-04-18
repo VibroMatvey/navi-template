@@ -65,7 +65,7 @@ class NodeUpdateController extends AbstractController
             $node->setPoint($point);
         }
 
-        if (count($body->getNodes())) {
+        if ($body->getNodes()) {
             $nodes = new ArrayCollection();
             foreach ($body->nodes as $node_id) {
                 $node_item = $this->nodeRepository->find($node_id);

@@ -48,7 +48,7 @@ class Area
     /**
      * @var Collection<int, Point>
      */
-    #[ORM\ManyToMany(targetEntity: Point::class, inversedBy: 'areas')]
+    #[ORM\ManyToMany(targetEntity: Point::class, inversedBy: 'areas', cascade: ['remove'])]
     #[Groups(['area:read'])]
     private Collection $points;
 

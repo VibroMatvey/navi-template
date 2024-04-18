@@ -5,10 +5,8 @@ namespace App\Controller\Area;
 use App\Dto\AreaDto;
 use App\Repository\AreaRepository;
 use App\Repository\FloorRepository;
-use App\Repository\NodeRepository;
 use App\Repository\PointRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use phpDocumentor\Reflection\Types\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +48,7 @@ class AreaUpdateController extends AbstractController
             $area->setFloor($floor);
         }
 
-        if (count($body->getPoints())) {
+        if ($body->getPoints()) {
             $points = new ArrayCollection();
             foreach ($body->getPoints() as $point_id) {
                 $point_item = $this->pointRepository->find($point_id);
