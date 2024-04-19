@@ -83,10 +83,14 @@ class Node
     #[ORM\OneToMany(mappedBy: 'node', targetEntity: MapObject::class)]
     private Collection $mapObjects;
 
+    #[ORM\OneToMany(mappedBy: 'node', targetEntity: Terminal::class, cascade: ['all'])]
+    private Collection $terminals;
+
     public function __construct()
     {
         $this->nodes = new ArrayCollection();
         $this->mapObjects = new ArrayCollection();
+        $this->terminals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,6 +166,36 @@ class Node
             // set the owning side to null (unless already changed)
             if ($mapObject->getNode() === $this) {
                 $mapObject->setNode(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Terminal>
+     */
+    public function getTerminals(): Collection
+    {
+        return $this->terminals;
+    }
+
+    public function addTerminal(Terminal $terminal): static
+    {
+        if (!$this->terminals->contains($terminal)) {
+            $this->terminals->add($terminal);
+            $terminal->setNode($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTerminal(Terminal $terminal): static
+    {
+        if ($this->terminals->removeElement($terminal)) {
+            // set the owning side to null (unless already changed)
+            if ($terminal->getNode() === $this) {
+                $terminal->setNode(null);
             }
         }
 

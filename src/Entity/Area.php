@@ -61,10 +61,14 @@ class Area
     #[ORM\OneToMany(mappedBy: 'area', targetEntity: MapObject::class)]
     private Collection $mapObjects;
 
+    #[ORM\OneToMany(mappedBy: 'area', targetEntity: Terminal::class, cascade: ['all'])]
+    private Collection $terminals;
+
     public function __construct()
     {
         $this->points = new ArrayCollection();
         $this->mapObjects = new ArrayCollection();
+        $this->terminals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -140,6 +144,36 @@ class Area
             // set the owning side to null (unless already changed)
             if ($mapObject->getArea() === $this) {
                 $mapObject->setArea(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Terminal>
+     */
+    public function getTerminals(): Collection
+    {
+        return $this->terminals;
+    }
+
+    public function addTerminal(Terminal $terminal): static
+    {
+        if (!$this->terminals->contains($terminal)) {
+            $this->terminals->add($terminal);
+            $terminal->setArea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTerminal(Terminal $terminal): static
+    {
+        if ($this->terminals->removeElement($terminal)) {
+            // set the owning side to null (unless already changed)
+            if ($terminal->getArea() === $this) {
+                $terminal->setArea(null);
             }
         }
 
