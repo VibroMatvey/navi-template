@@ -91,7 +91,7 @@ class Floor
         return $this->mapImage;
     }
 
-    public function setMapImage(string $mapImage): static
+    public function setMapImage(?string $mapImage): static
     {
         $this->mapImage = $mapImage;
 

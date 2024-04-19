@@ -20,7 +20,7 @@ class DashboardController extends AbstractDashboardController
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    #[Route(path: '/admin', name: 'admin', methods: ['GET', 'OPTIONS'])]
+    #[Route(path: '/admin', name: 'admin')]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
