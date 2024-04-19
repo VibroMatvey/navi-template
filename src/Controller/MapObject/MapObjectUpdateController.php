@@ -45,6 +45,10 @@ class MapObjectUpdateController  extends AbstractController
             }
             $mapObject->setNode($node);
         }
+        else
+        {
+            $mapObject->setNode($body->getNode());
+        }
 
         if ($body->getArea() !== null) {
             $areaId = $body->getArea();
@@ -53,6 +57,10 @@ class MapObjectUpdateController  extends AbstractController
                 throw new NotFoundHttpException("node with id $areaId not found");
             }
             $mapObject->setArea($area);
+        }
+        else
+        {
+            $mapObject->setArea($body->getArea());
         }
 
         $this->mapObjectRepository->save($mapObject, true);

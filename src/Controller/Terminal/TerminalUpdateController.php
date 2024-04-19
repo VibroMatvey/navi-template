@@ -44,6 +44,10 @@ class TerminalUpdateController  extends AbstractController
             }
             $terminal->setNode($node);
         }
+        else
+        {
+            $terminal->setNode($body->getNode());
+        }
 
         if ($body->getArea() !== null) {
             $areaId = $body->getArea();
@@ -52,6 +56,10 @@ class TerminalUpdateController  extends AbstractController
                 throw new NotFoundHttpException("node with id $areaId not found");
             }
             $terminal->setArea($area);
+        }
+        else
+        {
+            $terminal->setArea($body->getArea());
         }
 
         $this->terminalRepository->save($terminal, true);
