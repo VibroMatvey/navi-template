@@ -59,9 +59,11 @@ class Area
      * @var Collection<int, MapObject>
      */
     #[ORM\OneToMany(mappedBy: 'area', targetEntity: MapObject::class)]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $mapObjects;
 
-    #[ORM\OneToMany(mappedBy: 'area', targetEntity: Terminal::class, cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'area', targetEntity: Terminal::class)]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $terminals;
 
     public function __construct()

@@ -46,9 +46,11 @@ class Terminal
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'terminals')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Node $node = null;
 
     #[ORM\ManyToOne(inversedBy: 'terminals')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Area $area = null;
 
     public function getId(): ?int

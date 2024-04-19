@@ -41,10 +41,12 @@ class MapObject
     #[Groups(['map-object:read'])]
     private ?string $title = null;
 
-    #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'mapObjects')]
+    #[ORM\ManyToOne(inversedBy: 'mapObjects')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Node $node = null;
 
-    #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'mapObjects')]
+    #[ORM\ManyToOne(inversedBy: 'mapObjects')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Area $area = null;
 
     public function getId(): ?int

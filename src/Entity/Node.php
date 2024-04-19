@@ -69,6 +69,7 @@ class Node
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'nodes')]
     #[Groups(['node:read'])]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Point $point = null;
 
     /**
@@ -81,9 +82,11 @@ class Node
      * @var Collection<int, MapObject>
      */
     #[ORM\OneToMany(mappedBy: 'node', targetEntity: MapObject::class)]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $mapObjects;
 
-    #[ORM\OneToMany(mappedBy: 'node', targetEntity: Terminal::class, cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'node', targetEntity: Terminal::class)]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $terminals;
 
     public function __construct()

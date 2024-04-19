@@ -59,13 +59,15 @@ class Point
     /**
      * @var Collection<int, Area>
      */
-    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points', cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Area::class, mappedBy: 'points')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $areas;
 
     /**
      * @var Collection<int, Node>
      */
-    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class)]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $nodes;
 
     public function __construct()
