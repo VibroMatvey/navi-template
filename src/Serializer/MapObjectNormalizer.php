@@ -19,19 +19,8 @@ readonly class MapObjectNormalizer implements NormalizerInterface
         /* @var MapObject $object */
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $nodes = [];
-        $areas = [];
-
-        foreach ($object->getNodes() as $node) {
-            $nodes[] = $node->getId();
-        }
-
-        foreach ($object->getAreas() as $area) {
-            $areas[] = $area->getId();
-        }
-
-        $data['nodes'] = $nodes;
-        $data['areas'] = $areas;
+        $data['node'] = $object->getNode()?->getId();
+        $data['area'] = $object->getArea()?->getId();
 
         return $data;
     }

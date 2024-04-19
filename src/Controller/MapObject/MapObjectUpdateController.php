@@ -37,28 +37,22 @@ class MapObjectUpdateController  extends AbstractController
             throw new NotFoundHttpException("map object with id $id not found");
         }
 
-        if ($body->getNodes() !== null) {
-            $nodes = new ArrayCollection();
-            foreach ($body->getNodes() as $node_id) {
-                $node_item = $this->nodeRepository->find($node_id);
-                if (!$node_item) {
-                    throw new NotFoundHttpException("node with id $node_id not found");
-                }
-                $nodes->add($node_item);
+        if ($body->getNode() !== null) {
+            $nodeId = $body->getNode();
+            $node = $this->nodeRepository->find($nodeId);
+            if (!$node) {
+                throw new NotFoundHttpException("node with id $nodeId not found");
             }
-            $mapObject->setNodes($nodes);
+            $mapObject->setNode($node);
         }
 
-        if ($body->getAreas() !== null) {
-            $areas = new ArrayCollection();
-            foreach ($body->getAreas() as $area_id) {
-                $area_item = $this->areaRepository->find($area_id);
-                if (!$area_item) {
-                    throw new NotFoundHttpException("area with id $area_id not found");
-                }
-                $areas->add($area_item);
+        if ($body->getArea() !== null) {
+            $areaId = $body->getArea();
+            $area = $this->areaRepository->find($areaId);
+            if (!$area) {
+                throw new NotFoundHttpException("node with id $areaId not found");
             }
-            $mapObject->setAreas($areas);
+            $mapObject->setArea($area);
         }
 
         $this->mapObjectRepository->save($mapObject, true);

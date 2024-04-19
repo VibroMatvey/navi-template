@@ -41,25 +41,11 @@ class MapObject
     #[Groups(['map-object:read'])]
     private ?string $title = null;
 
-    /**
-     * @var Collection<int, Node>
-     */
-    #[ORM\ManyToMany(targetEntity: Node::class, inversedBy: 'mapObjects')]
-    #[Groups(['map-object:read'])]
-    private Collection $nodes;
+    #[ORM\ManyToOne(inversedBy: 'mapObjects')]
+    private ?Node $node = null;
 
-    /**
-     * @var Collection<int, Area>
-     */
-    #[ORM\ManyToMany(targetEntity: Area::class, inversedBy: 'mapObjects')]
-    #[Groups(['map-object:read'])]
-    private Collection $areas;
-
-    public function __construct()
-    {
-        $this->nodes = new ArrayCollection();
-        $this->areas = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'mapObjects')]
+    private ?Area $area = null;
 
     public function getId(): ?int
     {
@@ -78,67 +64,27 @@ class MapObject
         return $this;
     }
 
-    /**
-     * @return Collection<int, Node>
-     */
-    public function getNodes(): Collection
+    public function getNode(): ?Node
     {
-        return $this->nodes;
+        return $this->node;
     }
 
-    public function addNode(Node $node): static
+    public function setNode(?Node $node): static
     {
-        if (!$this->nodes->contains($node)) {
-            $this->nodes->add($node);
-        }
+        $this->node = $node;
 
         return $this;
     }
 
-    public function removeNode(Node $node): static
+    public function getArea(): ?Area
     {
-        $this->nodes->removeElement($node);
+        return $this->area;
+    }
+
+    public function setArea(?Area $area): static
+    {
+        $this->area = $area;
 
         return $this;
-    }
-
-    /**
-     * @return Collection<int, Area>
-     */
-    public function getAreas(): Collection
-    {
-        return $this->areas;
-    }
-
-    public function addArea(Area $area): static
-    {
-        if (!$this->areas->contains($area)) {
-            $this->areas->add($area);
-        }
-
-        return $this;
-    }
-
-    public function removeArea(Area $area): static
-    {
-        $this->areas->removeElement($area);
-
-        return $this;
-    }
-
-    /**
-     * @param Collection $areas
-     */
-    public function setAreas(Collection $areas): void
-    {
-        $this->areas = $areas;
-    }
-
-    /**
-     * @param Collection $nodes
-     */
-    public function setNodes(Collection $nodes): void
-    {
-        $this->nodes = $nodes;
     }
 }

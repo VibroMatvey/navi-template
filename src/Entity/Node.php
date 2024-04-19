@@ -80,7 +80,7 @@ class Node
     /**
      * @var Collection<int, MapObject>
      */
-    #[ORM\ManyToMany(targetEntity: MapObject::class, mappedBy: 'nodes')]
+    #[ORM\OneToMany(mappedBy: 'node', targetEntity: MapObject::class)]
     private Collection $mapObjects;
 
     public function __construct()
@@ -150,7 +150,7 @@ class Node
     {
         if (!$this->mapObjects->contains($mapObject)) {
             $this->mapObjects->add($mapObject);
-            $mapObject->addNode($this);
+            $mapObject->setNode($this);
         }
 
         return $this;
@@ -159,7 +159,10 @@ class Node
     public function removeMapObject(MapObject $mapObject): static
     {
         if ($this->mapObjects->removeElement($mapObject)) {
-            $mapObject->removeNode($this);
+            // set the owning side to null (unless already changed)
+            if ($mapObject->getNode() === $this) {
+                $mapObject->setNode(null);
+            }
         }
 
         return $this;

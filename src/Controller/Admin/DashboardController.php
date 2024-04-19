@@ -12,7 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -20,7 +20,7 @@ class DashboardController extends AbstractDashboardController
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    #[Route('/admin', name: 'admin')]
+    #[Route(path: '/admin', name: 'admin', methods: ['GET', 'OPTIONS'])]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -30,7 +30,10 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Админ-панель')
+            ->setTitle('
+                <span>Админ-панель</span>
+            ')
+            ->setFaviconPath('favicon.ico')
             ->renderContentMaximized();
     }
 
@@ -40,7 +43,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Этажи', 'fas fa-stairs', Floor::class);
         yield MenuItem::linkToCrud('Объекты карты', 'fas fa-location-dot', MapObject::class);
         yield MenuItem::section('Настройки');
-        yield MenuItem::linkToCrud('Пользователи', 'fa fa-user-cog', User::class)
+        yield MenuItem::linkToCrud('Пользователи', 'fas fa-user-gear', User::class)
             ->setPermission('ROLE_ADMIN');
         yield MenuItem::linkToUrl('API', 'fa fa-link', '/api')->setLinkTarget('_blank')
             ->setPermission('ROLE_ADMIN');

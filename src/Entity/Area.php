@@ -58,7 +58,7 @@ class Area
     /**
      * @var Collection<int, MapObject>
      */
-    #[ORM\ManyToMany(targetEntity: MapObject::class, mappedBy: 'areas')]
+    #[ORM\OneToMany(mappedBy: 'area', targetEntity: MapObject::class)]
     private Collection $mapObjects;
 
     public function __construct()
@@ -128,7 +128,7 @@ class Area
     {
         if (!$this->mapObjects->contains($mapObject)) {
             $this->mapObjects->add($mapObject);
-            $mapObject->addArea($this);
+            $mapObject->setArea($this);
         }
 
         return $this;
@@ -137,7 +137,10 @@ class Area
     public function removeMapObject(MapObject $mapObject): static
     {
         if ($this->mapObjects->removeElement($mapObject)) {
-            $mapObject->removeArea($this);
+            // set the owning side to null (unless already changed)
+            if ($mapObject->getArea() === $this) {
+                $mapObject->setArea(null);
+            }
         }
 
         return $this;

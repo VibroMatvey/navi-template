@@ -4,22 +4,22 @@ namespace App\Dto;
 
 final class MapObjectDto
 {
-    public ?array $nodes = [];
-    public ?array $areas = [];
+    public ?int $node = null;
+    public ?int $area = null;
 
     /**
-     * @return array
+     * @return int
      */
-    public function getNodes(): array
+    public function getNode(): int
     {
-        return $this->nodes;
+        return $this->node;
     }
 
     /**
-     * @return array
+     * @return int
      */
-    public function getAreas(): array
+    public function getArea(): int
     {
-        return $this->areas;
+        return $this->area;
     }
 }
