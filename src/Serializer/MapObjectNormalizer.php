@@ -5,12 +5,14 @@ namespace App\Serializer;
 use App\Entity\MapObject;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Vich\UploaderBundle\Storage\StorageInterface;
 
 readonly class MapObjectNormalizer implements NormalizerInterface
 {
     public function __construct(
         #[Autowire(service: 'serializer.normalizer.object')]
-        private NormalizerInterface $normalizer
+        private NormalizerInterface $normalizer,
+        private StorageInterface    $storage
     ) {
     }
 
@@ -21,6 +23,7 @@ readonly class MapObjectNormalizer implements NormalizerInterface
 
         $data['node'] = $object->getNode()?->getId();
         $data['area'] = $object->getArea()?->getId();
+        $data['image'] = $this->storage->resolveUri($object, 'imageFile');
 
         return $data;
     }

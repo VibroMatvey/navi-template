@@ -66,8 +66,7 @@ class Point
     /**
      * @var Collection<int, Node>
      */
-    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class)]
-    #[ORM\JoinColumn(onDelete:"SET NULL")]
+    #[ORM\OneToMany(mappedBy: 'point', targetEntity: Node::class, cascade: ['all'])]
     private Collection $nodes;
 
     public function __construct()

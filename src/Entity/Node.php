@@ -69,7 +69,6 @@ class Node
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'nodes')]
     #[Groups(['node:read'])]
-    #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Point $point = null;
 
     /**

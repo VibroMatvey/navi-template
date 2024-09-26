@@ -22,6 +22,7 @@ readonly class FloorNormalizer implements NormalizerInterface
         $data = $this->normalizer->normalize($object, $format, $context);
 
         $data['mapImage'] = $this->storage->resolveUri($object, 'mapImageFile');
+        $data['CVImage'] = $this->storage->resolveUri($object, 'CVImageFile');
 
         return $data;
     }

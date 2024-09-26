@@ -51,22 +51,42 @@ class Floor
     #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
     private ?File $mapImageFile = null;
 
+    #[ORM\Column(length: 255)]
+    #[Groups(['floor:read', 'point:read','node:read'])]
+    private ?string $CVImage = null;
+
+    #[Vich\UploadableField(mapping: 'floor_map_cv_images', fileNameProperty: 'CVImage')]
+    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
+    private ?File $CVImageFile = null;
+
     /**
      * @var Collection<int, Point>
      */
-    #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Point::class)]
+    #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Point::class, cascade: ['all'])]
     private Collection $points;
 
     /**
      * @var Collection<int, Area>
      */
-    #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Area::class)]
+    #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Area::class, cascade: ['all'])]
     private Collection $areas;
+
+    /**
+     * @var Collection<int, Terminal>
+     */
+    #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Terminal::class, cascade: ['all'])]
+    private Collection $terminal;
 
     public function __construct()
     {
         $this->points = new ArrayCollection();
         $this->areas = new ArrayCollection();
+        $this->terminal = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 
     public function getId(): ?int
@@ -168,6 +188,63 @@ class Floor
             if ($area->getFloor() === $this) {
                 $area->setFloor(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Terminal>
+     */
+    public function getTerminal(): Collection
+    {
+        return $this->terminal;
+    }
+
+    public function addTerminal(Terminal $terminal): static
+    {
+        if (!$this->terminal->contains($terminal)) {
+            $this->terminal->add($terminal);
+            $terminal->setFloor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTerminal(Terminal $terminal): static
+    {
+        if ($this->terminal->removeElement($terminal)) {
+            // set the owning side to null (unless already changed)
+            if ($terminal->getFloor() === $this) {
+                $terminal->setFloor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCVImage(): ?string
+    {
+        return $this->CVImage;
+    }
+
+    public function setCVImage(?string $CVImage): static
+    {
+        $this->CVImage = $CVImage;
+
+        return $this;
+    }
+
+    public function getCVImageFile(): ?File
+    {
+        return $this->CVImageFile;
+    }
+
+    public function setCVImageFile(?File $CVImageFile): static
+    {
+        $this->CVImageFile = $CVImageFile;
+        if (null !== $CVImageFile) {
+            $this->updatedAt = new DateTime();
         }
 
         return $this;

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Terminal;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -29,5 +30,6 @@ class TerminalCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
         yield TextField::new('name', 'Название');
+        yield AssociationField::new('floor', 'Этаж');
     }
 }

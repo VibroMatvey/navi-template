@@ -53,6 +53,10 @@ class Terminal
     #[ORM\JoinColumn(onDelete:"SET NULL")]
     private ?Area $area = null;
 
+    #[ORM\ManyToOne(inversedBy: 'terminal')]
+    #[ORM\JoinColumn(onDelete:"SET NULL")]
+    private ?Floor $floor = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,5 +96,23 @@ class Terminal
         $this->area = $area;
 
         return $this;
+    }
+
+    public function getFloor(): ?Floor
+    {
+        return $this->floor;
+    }
+
+    public function setFloor(?Floor $floor): static
+    {
+        $this->floor = $floor;
+
+        return $this;
+    }
+
+    #[Groups('terminal:read')]
+    public function getFloors(): ?int
+    {
+        return $this->getFloor()?->getId();
     }
 }

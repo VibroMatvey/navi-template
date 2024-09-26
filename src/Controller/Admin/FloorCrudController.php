@@ -63,5 +63,25 @@ class FloorCrudController extends AbstractCrudController
 
         yield VichImageField::new('mapImage', 'Изображение')
             ->hideOnForm();
+
+        $CVImage = VichImageField::new('CVImageFile', 'Изображение CV')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.png</span>
+                </div>
+            ')
+            ->onlyOnForms()
+            ->setFormTypeOption('allow_delete', false)
+            ->setRequired(true);
+
+        if (Crud::PAGE_EDIT == $pageName) {
+            $CVImage->setRequired(false);
+        }
+
+        yield $CVImage;
+
+        yield VichImageField::new('CVImage', 'Изображение CV')
+            ->hideOnForm();
     }
 }
