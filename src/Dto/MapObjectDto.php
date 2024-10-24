@@ -15,10 +15,7 @@ final class MapObjectDto
         return $this->node;
     }
 
-    /**
-     * @return int
-     */
-    public function getArea(): int
+    public function getArea(): ?int
     {
         return $this->area;
     }

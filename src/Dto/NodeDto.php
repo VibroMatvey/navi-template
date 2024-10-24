@@ -8,6 +8,8 @@ final class NodeDto
 
     public ?array $nodes = null;
 
+    public ?array $types = null;
+
     /**
      * @return array|null
      */
@@ -22,5 +24,13 @@ final class NodeDto
     public function getPoint(): ?PointDto
     {
         return $this->point;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getTypes(): ?array
+    {
+        return $this->types;
     }
 }

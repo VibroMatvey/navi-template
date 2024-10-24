@@ -10,7 +10,3 @@ vich_uploader:
             uri_prefix: /images/map_object
             upload_destination: '%kernel.project_dir%/public/images/map_object'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
-        floor_map_cv_images:
-            uri_prefix: /images/floor_cv
-            upload_destination: '%kernel.project_dir%/public/images/floor_cv'
-            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer

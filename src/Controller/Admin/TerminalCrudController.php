@@ -29,7 +29,7 @@ class TerminalCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+
         yield TextField::new('name', 'Название');
-        yield AssociationField::new('floor', 'Этаж');
     }
 }

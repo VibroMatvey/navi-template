@@ -7,6 +7,7 @@ use App\Dto\PointDto;
 use App\Entity\Point;
 use App\Repository\FloorRepository;
 use App\Repository\NodeRepository;
+use App\Repository\NodeTypeRepository;
 use App\Repository\PointRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,7 @@ class NodeUpdateController extends AbstractController
         private readonly PointRepository $pointRepository,
         private readonly FloorRepository $floorRepository,
         private readonly NodeRepository $nodeRepository,
+        private readonly NodeTypeRepository $nodeTypeRepository,
     )
     {
     }
@@ -76,6 +78,20 @@ class NodeUpdateController extends AbstractController
                 $nodes->add($node_item);
             }
             $node->setNodes($nodes);
+        }
+
+        if ($body->getTypes() !== null) {
+            $node->getTypes()->clear();
+
+            $types = new ArrayCollection();
+            foreach ($body->types as $type_id) {
+                $type_item = $this->nodeTypeRepository->find($type_id);
+                if (!$type_item) {
+                    throw new BadRequestHttpException("type with id $type_item not found");
+                }
+                $types->add($type_item);
+            }
+            $node->setTypes($types);
         }
 
         $this->nodeRepository->save($node, true);

@@ -7,23 +7,22 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use App\Controller\MapObject\MapObjectUpdateController;
+use App\DataProvider\MapObjectDataProvider;
 use App\Dto\MapObjectDto;
-use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\MapObjectRepository;
-use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
 #[ApiResource(
     operations: [
         new Get(),
-        new GetCollection(),
+        new GetCollection(
+            provider: MapObjectDataProvider::class
+        ),
         new Patch(
             controller: MapObjectUpdateController::class,
             input: MapObjectDto::class
@@ -35,7 +34,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: MapObjectRepository::class)]
 class MapObject
 {
-    use UpdatedAtTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -59,17 +57,37 @@ class MapObject
     #[Groups(['map-object:read'])]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
+    /**
+     * @var Collection<int, MapObjectImage>
+     */
+    #[ORM\OneToMany(mappedBy: 'mapObject', targetEntity: MapObjectImage::class, cascade: ['all'], orphanRemoval: true)]
     #[Groups(['map-object:read'])]
-    private ?int $number = null;
+    private Collection $images;
 
-    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['map-object:read'])]
-    private ?string $image = null;
+    private ?string $type = null;
 
-    #[Vich\UploadableField(mapping: 'map_object_images', fileNameProperty: 'image')]
-    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
-    private ?File $imageFile = null;
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'mapObjects')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?self $object = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(mappedBy: 'object', targetEntity: self::class)]
+    #[Groups(['map-object:read'])]
+    private Collection $mapObjects;
+
+    public function __toString(): string
+    {
+        return $this->title;
+    }
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+        $this->mapObjects = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -124,42 +142,83 @@ class MapObject
         return $this;
     }
 
-    public function getNumber(): ?int
+    /**
+     * @return Collection<int, MapObjectImage>
+     */
+    public function getImages(): Collection
     {
-        return $this->number;
+        return $this->images;
     }
 
-    public function setNumber(?int $number): static
+    public function addImage(MapObjectImage $image): static
     {
-        $this->number = $number;
-
-        return $this;
-    }
-
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(?string $image): static
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
-    }
-
-    public function setImageFile(?File $imageFile): self
-    {
-        $this->imageFile = $imageFile;
-        if (null !== $imageFile) {
-            $this->updatedAt = new DateTime();
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setMapObject($this);
         }
 
         return $this;
+    }
+
+    public function removeImage(MapObjectImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getMapObject() === $this) {
+                $image->setMapObject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getObject(): ?self
+    {
+        return $this->object;
+    }
+
+    public function setObject(?self $object): static
+    {
+        $this->object = $object;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getMapObjects(): Collection
+    {
+        return $this->mapObjects;
+    }
+
+    public function addMapObject(self $mapObject): static
+    {
+        if (!$this->mapObjects->contains($mapObject)) {
+            $this->mapObjects->add($mapObject);
+            $mapObject->setObject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMapObject(self $mapObject): static
+    {
+        if ($this->mapObjects->removeElement($mapObject)) {
+            // set the owning side to null (unless already changed)
+            if ($mapObject->getObject() === $this) {
+                $mapObject->setObject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->mapObjects->count() ? 'complex' : 'object';
     }
 }

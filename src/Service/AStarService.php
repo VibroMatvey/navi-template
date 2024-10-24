@@ -12,7 +12,7 @@ readonly class AStarService {
     {
     }
 
-    public static function find_path($start, $goal, $repo): ?array
+    public static function find_path($start, $goal, $routeType, $repo): ?array
     {
         $all_nodes = [];
         $start_node = new AStarNodeService($repo, $start, $all_nodes);
@@ -38,10 +38,13 @@ readonly class AStarService {
             $closed_set[] = $current_node;
 
             foreach ($current_node->neighbors as $neighbour_node) {
-                if (in_array($neighbour_node, $closed_set)) {
+                if (in_array($neighbour_node, $closed_set) || !$neighbour_node->node->getTypes()->contains($routeType)) {
                     continue;
                 }
-                $open_node = array_filter($open_set, function($node) use ($neighbour_node) {
+
+                /* @var AStarNodeService $neighbour_node */
+
+                $open_node = array_filter($open_set, function($node) use ($neighbour_node, $routeType) {
                     return $node == $neighbour_node;
                 });
 

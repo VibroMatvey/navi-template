@@ -2,14 +2,15 @@
 
 namespace App\Controller\Admin;
 
-use App\Controller\Admin\Field\VichImageField;
+use App\Controller\Admin\Field\VichGalleryField;
 use App\Entity\MapObject;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -24,18 +25,12 @@ class MapObjectCrudController extends AbstractCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInPlural('Объекты карты')
-            ->setEntityLabelInSingular('Объект карты')
+            ->setEntityLabelInSingular('объект карты')
             ->setPageTitle(Crud::PAGE_NEW, 'Добавление объекта карты')
             ->setPageTitle(Crud::PAGE_EDIT, 'Изменение объекта карты')
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация об объекте карты");
     }
 
-
-    public function configureActions(Actions $actions): Actions
-    {
-        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
-        return parent::configureActions($actions);
-    }
 
     public function configureFields(string $pageName): iterable
     {
@@ -44,25 +39,52 @@ class MapObjectCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Название');
         yield TextEditorField::new('description', 'Описание');
-        yield IntegerField::new('number', 'Номер');
 
-        $image = VichImageField::new('imageFile', 'Изображение')
-            ->setHelp('
-                <div class="mt-3">
-                    <span class="badge badge-info">*.jpg</span>
-                    <span class="badge badge-info">*.jpeg</span>
-                    <span class="badge badge-info">*.png</span>
-                    <span class="badge badge-info">*.webp</span>
-                </div>
-            ')
+        yield CollectionField::new('images', 'Изображения')
+            ->setRequired(false)
+            ->showEntryLabel(false)
+            ->useEntryCrudForm(MapObjectImageCrudController::class)
             ->onlyOnForms()
-            ->setFormTypeOption('allow_delete', false)
-            ->setRequired(false);
+            ->setColumns(8);
 
-        if (Crud::PAGE_EDIT == $pageName) {
-            $image->setRequired(false);
+        if (Crud::PAGE_EDIT === $pageName) {
+            yield AssociationField::new('mapObjects', 'Объекты')
+                ->setFormTypeOptions([
+                    'by_reference' => false,
+                ])
+                ->setQueryBuilder(
+                    fn(QueryBuilder $queryBuilder) => $queryBuilder
+                        ->leftJoin('entity.mapObjects', 'mapObject')
+                        ->andWhere('mapObject.id IS NULL')
+                        ->andWhere('entity.id != :id')
+                        ->setParameter('id', $this->getContext()->getEntity()?->getInstance()?->getId())
+                )
+                ->onlyOnForms()
+                ->setHelp('Если выбраны дочерние объекты карты, родительский объект считается комплексом');
         }
 
-        yield $image;
+        if (Crud::PAGE_NEW === $pageName) {
+            yield AssociationField::new('mapObjects', 'Объекты')
+                ->setFormTypeOptions([
+                    'by_reference' => false,
+                ])
+                ->setQueryBuilder(
+                    fn(QueryBuilder $queryBuilder) => $queryBuilder
+                        ->leftJoin('entity.mapObjects', 'mapObject')
+                        ->andWhere('mapObject.id IS NULL')
+                )
+                ->onlyOnForms()
+                ->setHelp('Если выбраны дочерние объекты карты, родительский объект считается комплексом');
+        }
+
+        yield ChoiceField::new('type', 'Тип')
+            ->hideOnForm()
+            ->setChoices([
+                'Комплекс' => 'complex',
+                'Одиночный' => 'object'
+            ]);
+
+        yield VichGalleryField::new('images.image', 'Изображения')
+            ->hideOnForm();
     }
 }

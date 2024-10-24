@@ -51,14 +51,6 @@ class Floor
     #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
     private ?File $mapImageFile = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['floor:read', 'point:read','node:read'])]
-    private ?string $CVImage = null;
-
-    #[Vich\UploadableField(mapping: 'floor_map_cv_images', fileNameProperty: 'CVImage')]
-    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
-    private ?File $CVImageFile = null;
-
     /**
      * @var Collection<int, Point>
      */
@@ -218,33 +210,6 @@ class Floor
             if ($terminal->getFloor() === $this) {
                 $terminal->setFloor(null);
             }
-        }
-
-        return $this;
-    }
-
-    public function getCVImage(): ?string
-    {
-        return $this->CVImage;
-    }
-
-    public function setCVImage(?string $CVImage): static
-    {
-        $this->CVImage = $CVImage;
-
-        return $this;
-    }
-
-    public function getCVImageFile(): ?File
-    {
-        return $this->CVImageFile;
-    }
-
-    public function setCVImageFile(?File $CVImageFile): static
-    {
-        $this->CVImageFile = $CVImageFile;
-        if (null !== $CVImageFile) {
-            $this->updatedAt = new DateTime();
         }
 
         return $this;

@@ -7,7 +7,7 @@ use App\Entity\Node;
 use App\Entity\Point;
 use App\Repository\FloorRepository;
 use App\Repository\NodeRepository;
-use App\Repository\PointRepository;
+use App\Repository\NodeTypeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,22 +21,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class NodeCreateController extends AbstractController
 {
     public function __construct(
-        private readonly NodeRepository $nodeRepository,
-        private readonly FloorRepository $floorRepository
+        private readonly NodeRepository  $nodeRepository,
+        private readonly FloorRepository $floorRepository,
+        private readonly NodeTypeRepository $nodeTypeRepository,
     )
     {
     }
 
-    public function __invoke(Request $request, SerializerInterface  $serializer, ValidatorInterface $validator): JsonResponse
+    public function __invoke(
+        Request             $request,
+        SerializerInterface $serializer,
+        ValidatorInterface  $validator,
+    ): JsonResponse
     {
         $body = $serializer->deserialize($request->getContent(), NodeDto::class, 'json');
         $errors = $validator->validate($body);
         if (count($errors) > 0) {
-            throw new BadRequestHttpException((string) $errors);
+            throw new BadRequestHttpException((string)$errors);
         }
         $errors = $validator->validate($body->getPoint());
         if (count($errors) > 0) {
-            throw new BadRequestHttpException((string) $errors);
+            throw new BadRequestHttpException((string)$errors);
         }
 
         $point = new Point();
@@ -46,7 +51,7 @@ class NodeCreateController extends AbstractController
         $floor = $this->floorRepository->find($body->point->floor);
 
         if (!$floor) {
-            $floor_id= $body->point->floor;
+            $floor_id = $body->point->floor;
             throw new NotFoundHttpException("floor with id $floor_id not found");
         }
 
@@ -62,6 +67,16 @@ class NodeCreateController extends AbstractController
                 }
                 $node->addNode($node_item);
             }
+        }
+
+        foreach ($body->types as $typeId) {
+            $type = $this->nodeTypeRepository->find($typeId);
+
+            if (!$type) {
+                throw new BadRequestHttpException("type with id $typeId not found");
+            }
+
+            $node->addType($type);
         }
 
         $this->nodeRepository->save($node, true);

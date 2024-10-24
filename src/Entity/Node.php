@@ -40,6 +40,12 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
                         'required' => true,
                         'type' => 'integer'
                     ],
+                    [
+                        'name' => 'routeType',
+                        'in' => 'query',
+                        'required' => true,
+                        'type' => 'integer'
+                    ],
                 ]
             ),
             provider: NodeNavigateDataProvider::class
@@ -75,6 +81,9 @@ class Node
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'nodes')]
+    #[ORM\JoinTable(name: 'node_relations')]
+    #[ORM\JoinColumn(name: 'parent_node_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'child_node_id', referencedColumnName: 'id')]
     private Collection $nodes;
 
     /**
@@ -88,11 +97,19 @@ class Node
     #[ORM\JoinColumn(onDelete:"SET NULL")]
     private Collection $terminals;
 
+    /**
+     * @var Collection<int, NodeType>
+     */
+    #[ORM\ManyToMany(targetEntity: NodeType::class, inversedBy: 'nodes', cascade: ['all'])]
+    #[Groups(['node:read'])]
+    private Collection $types;
+
     public function __construct()
     {
         $this->nodes = new ArrayCollection();
         $this->mapObjects = new ArrayCollection();
         $this->terminals = new ArrayCollection();
+        $this->types = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -202,5 +219,39 @@ class Node
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, NodeType>
+     */
+    public function getTypes(): Collection
+    {
+        return $this->types;
+    }
+
+    public function addType(NodeType $type): static
+    {
+        if (!$this->types->contains($type)) {
+            $this->types->add($type);
+        }
+
+        return $this;
+    }
+
+    public function removeType(NodeType $type): static
+    {
+        if ($this->types->removeElement($type)) {
+            $type->removeNode($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Collection $types
+     */
+    public function setTypes(Collection $types): void
+    {
+        $this->types = $types;
     }
 }
