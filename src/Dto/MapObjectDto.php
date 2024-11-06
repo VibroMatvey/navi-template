@@ -8,9 +8,9 @@ final class MapObjectDto
     public ?int $area = null;
 
     /**
-     * @return int
+     * @return ?int
      */
-    public function getNode(): int
+    public function getNode(): ?int
     {
         return $this->node;
     }
