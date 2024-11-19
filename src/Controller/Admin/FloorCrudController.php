@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class FloorCrudController extends AbstractCrudController
@@ -56,5 +57,7 @@ class FloorCrudController extends AbstractCrudController
 
         yield VichImageField::new('mapImage', 'Изображение')
             ->hideOnForm();
+
+        yield NumberField::new('pixelsPerMeter', 'Кол-во пикселей на метр');
     }
 }

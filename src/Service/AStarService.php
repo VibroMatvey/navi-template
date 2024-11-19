@@ -2,90 +2,108 @@
 
 namespace App\Service;
 
-use App\Repository\NodeRepository;
+use App\Entity\Node;
+use App\Entity\NodeType;
+use DateInterval;
+use DateTimeImmutable;
+use Exception;
+use SplPriorityQueue;
 
-readonly class AStarService {
-
-    public function __construct(
-        public NodeRepository $nodeRepository
-    )
+final readonly class AStarService
+{
+    /**
+     * @throws Exception
+     */
+    public function find_path(
+        Node     $start,
+        Node     $goal,
+        NodeType $routeType,
+        array    $allNodes
+    ): ?array
     {
-    }
+        $openSet = new SplPriorityQueue();
+        $openSet->insert($start, 0);
 
-    public static function find_path($start, $goal, $routeType, $repo): ?array
-    {
-        $all_nodes = [];
-        $start_node = new AStarNodeService($repo, $start, $all_nodes);
-        $goal_node = new AStarNodeService($repo, $goal, $all_nodes);
-        $closed_set = [];
-        $open_set = [];
-        $start_node->heuristics_estimate_path_length = self::__get_heuristics_path_length($start_node, $goal_node);
-        $open_set[] = $start_node;
+        $cameFrom = [];
+        $gScore = [$start->getId() => 0];
+        $fScore = [$start->getId() => $this->heuristic($start, $goal)];
 
-        while (count($open_set) > 0) {
-            $current_node = null;
-            foreach ($open_set as $node) {
-                if ($current_node == null || $node->estimate_full_path() < $current_node->estimate_full_path()) {
-                    $current_node = $node;
-                }
+        while (!$openSet->isEmpty()) {
+            $current = $openSet->extract();
+
+            if ($current === $goal) {
+                return $this->reconstructPath($cameFrom, $current, $routeType);
             }
 
-            if ($current_node->node == $goal) {
-                return self::__get_path_for_node($current_node, $start_node);
-            }
+            /* @var Node $node */
+            foreach ($allNodes as $node) {
+                $neighbor = $node->getNodes()->contains($current);
 
-            unset($open_set[array_search($current_node, $open_set)]);
-            $closed_set[] = $current_node;
-
-            foreach ($current_node->neighbors as $neighbour_node) {
-                if (in_array($neighbour_node, $closed_set) || !$neighbour_node->node->getTypes()->contains($routeType)) {
+                if (!$neighbor || !$node->getTypes()->contains($routeType)) {
                     continue;
                 }
 
-                /* @var AStarNodeService $neighbour_node */
+                $tentativeGScore = $gScore[$current->getId()] + 1;
 
-                $open_node = array_filter($open_set, function($node) use ($neighbour_node, $routeType) {
-                    return $node == $neighbour_node;
-                });
+                if (!isset($gScore[$node->getId()]) || $tentativeGScore < $gScore[$node->getId()]) {
+                    $cameFrom[$node->getId()] = $current;
+                    $gScore[$node->getId()] = $tentativeGScore;
+                    $fScore[$node->getId()] = $tentativeGScore / 10 + $this->heuristic($node, $goal);
 
-                if (empty($open_node)) {
-                    $neighbour_node->heuristics_estimate_path_length = self::__get_heuristics_path_length($current_node, $neighbour_node);
-                    $neighbour_node->from_node = $current_node;
-                    $neighbour_node->path_length_from_start = $current_node->path_length_from_start + self::__get_heuristics_path_length($neighbour_node, $current_node);
-                    $open_set[] = $neighbour_node;
-                } elseif ($current_node->estimate_full_path() < $open_node[array_key_first($open_node)]->heuristics_estimate_path_length) {
-                    $open_node[array_key_first($open_node)]->from_node = $current_node;
-                    $open_node[array_key_first($open_node)]->path_length_from_start = $current_node->path_length_from_start;
+                    if (!$this->inOpenSet($openSet, $node)) {
+                        $openSet->insert($node, -$fScore[$node->getId()]);
+                    }
                 }
             }
         }
-        return null;
+
+        return [];
     }
 
-    private static function __get_path_for_node($path_node, $start_node): array
+    private function heuristic(Node $a, Node $b): float
     {
-        $result_nodes = [];
-        $current_node = $path_node;
+        return sqrt(
+            pow($a->getPoint()->getX() - $b->getPoint()->getX(), 2) +
+            pow($a->getPoint()->getY() - $b->getPoint()->getY(), 2)
+        );
+    }
 
-        while ($current_node) {
-            if ($path_node == $current_node->from_node || $current_node == $start_node) {
-                break;
+    /**
+     * @throws Exception
+     */
+    private function reconstructPath(array $cameFrom, Node $current, NodeType $routeType): array
+    {
+        $meters = 0;
+        $totalPath = [$current->getPoint()];
+        $previousNode = $current;
+        while (isset($cameFrom[$current->getId()])) {
+            $current = $cameFrom[$current->getId()];
+            $totalPath[] = $current->getPoint();
+            $pixels = $this->heuristic($previousNode, $current);
+            if ($current->getPoint()->getFloor()->getPixelsPerMeter()) {
+                $meters += $pixels / $current->getPoint()->getFloor()->getPixelsPerMeter();
             }
-            $result_nodes[] = $current_node;
-            $current_node = $current_node->from_node;
+            $previousNode = $current;
         }
-        $result_nodes[] = $start_node;
-        $result_nodes = array_reverse($result_nodes);
+        $speed = $routeType->getSpeed() / 3.6;
+        $timeInSeconds = $meters / $speed;
+        $startDateTime = new DateTimeImmutable('@0');
+        $time = $startDateTime->add(new DateInterval('PT' . (int)$timeInSeconds . 'S'));
 
-        $points = [];
-        foreach ($result_nodes as $node) {
-            $points[] = $node->node->getPoint();
-        }
-        return $points;
+        return [
+            'points' => array_reverse($totalPath),
+            'distance' => round($meters, 2),
+            'time' => $time,
+        ];
     }
 
-    private static function __get_heuristics_path_length($start, $end): float
+    private function inOpenSet(SplPriorityQueue $openSet, Node $node): bool
     {
-        return sqrt(pow($end->node->getPoint()->getX() - $start->node->getPoint()->getX(), 2) + pow($end->node->getPoint()->getY() - $start->node->getPoint()->getY(), 2));
+        foreach (clone $openSet as $item) {
+            if ($item === $node) {
+                return true;
+            }
+        }
+        return false;
     }
 }

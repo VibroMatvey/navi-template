@@ -27,6 +27,9 @@ class NodeType
     #[Groups(['node:read', 'node_type:read'])]
     private ?string $type = null;
 
+    #[ORM\Column]
+    private float $speed;
+
     /**
      * @var Collection<int, Node>
      */
@@ -76,6 +79,24 @@ class NodeType
     {
         $this->nodes->removeElement($node);
 
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getSpeed(): float
+    {
+        return $this->speed;
+    }
+
+    /**
+     * @param float $speed
+     * @return NodeType
+     */
+    public function setSpeed(float $speed): NodeType
+    {
+        $this->speed = $speed;
         return $this;
     }
 }

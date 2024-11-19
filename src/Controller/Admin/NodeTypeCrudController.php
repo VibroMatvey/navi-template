@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class NodeTypeCrudController extends AbstractCrudController
@@ -40,5 +41,8 @@ class NodeTypeCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('type', 'Тип');
+
+        yield NumberField::new('speed', 'Скорость')
+            ->setHelp('В км/ч');
     }
 }

@@ -69,6 +69,9 @@ class Floor
     #[ORM\OneToMany(mappedBy: 'floor', targetEntity: Terminal::class, cascade: ['all'])]
     private Collection $terminal;
 
+    #[Orm\Column]
+    private float $pixelsPerMeter;
+
     public function __construct()
     {
         $this->points = new ArrayCollection();
@@ -214,4 +217,24 @@ class Floor
 
         return $this;
     }
+
+    /**
+     * @return float
+     */
+    public function getPixelsPerMeter(): float
+    {
+        return $this->pixelsPerMeter;
+    }
+
+    /**
+     * @param float $pixelsPerMeter
+     * @return Floor
+     */
+    public function setPixelsPerMeter(float $pixelsPerMeter): Floor
+    {
+        $this->pixelsPerMeter = $pixelsPerMeter;
+        return $this;
+    }
+
+
 }

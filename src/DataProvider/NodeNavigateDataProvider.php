@@ -25,6 +25,9 @@ readonly class NodeNavigateDataProvider implements ProviderInterface
         return Node::class === $resourceClass;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         if (!key_exists('from', $context['filters']) or !key_exists('to', $context['filters'])) {
@@ -43,6 +46,6 @@ readonly class NodeNavigateDataProvider implements ProviderInterface
             throw new NotFoundHttpException('route type not found');
         }
 
-        return AStarService::find_path($from, $to, $routeType, $this->nodeRepository);
+        return (new AStarService())->find_path($from, $to, $routeType, $this->nodeRepository->findAll());
     }
 }
