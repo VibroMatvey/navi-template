@@ -1,0 +1,14 @@
+port: "8008"
+map:
+  radius: 6371.0
+  top_left:
+    x: 0
+    y: 0
+    lat: 56.88146
+    lon: 53.20844
+  bot_right:
+    x: 500
+    y: 500
+    lat: 56.87956
+    lon: 53.21407
+admin_base_url: "http://nginx:8080"

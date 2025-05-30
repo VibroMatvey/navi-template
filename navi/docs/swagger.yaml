@@ -1,0 +1,581 @@
+basePath: /navi/api/v1
+definitions:
+  navi.AreaEditInput:
+    properties:
+      cords:
+        items:
+          items:
+            $ref: '#/definitions/navi.Point'
+          type: array
+        type: array
+      objectId:
+        type: string
+    required:
+    - cords
+    - objectId
+    type: object
+  navi.AreaInput:
+    properties:
+      cords:
+        items:
+          items:
+            $ref: '#/definitions/navi.Point'
+          type: array
+        type: array
+      mapId:
+        type: string
+      nodeId:
+        type: integer
+      objectId:
+        type: string
+    required:
+    - cords
+    - mapId
+    - objectId
+    type: object
+  navi.AreaOutput:
+    properties:
+      cords:
+        items:
+          items:
+            $ref: '#/definitions/navi.Point'
+          type: array
+        type: array
+      id:
+        type: integer
+      mapId:
+        type: string
+      nodeId:
+        type: integer
+      objectId:
+        type: string
+    type: object
+  navi.MapPointEditInput:
+    properties:
+      objectId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - objectId
+    - x
+    - "y"
+    type: object
+  navi.MapPointInput:
+    properties:
+      mapId:
+        type: string
+      nodeId:
+        type: integer
+      objectId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - mapId
+    - objectId
+    - x
+    - "y"
+    type: object
+  navi.MapPointOutput:
+    properties:
+      id:
+        type: integer
+      mapId:
+        type: string
+      nodeId:
+        type: integer
+      objectId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - mapId
+    - objectId
+    - x
+    - "y"
+    type: object
+  navi.Point:
+    properties:
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - x
+    - "y"
+    type: object
+  navi.RoadEditInput:
+    properties:
+      source:
+        $ref: '#/definitions/navi.Point'
+      target:
+        $ref: '#/definitions/navi.Point'
+    required:
+    - source
+    - target
+    type: object
+  navi.RoadInput:
+    properties:
+      mapId:
+        type: string
+      source:
+        $ref: '#/definitions/navi.Point'
+      target:
+        $ref: '#/definitions/navi.Point'
+    required:
+    - mapId
+    - source
+    - target
+    type: object
+  navi.RoadOutput:
+    properties:
+      id:
+        type: integer
+      mapId:
+        type: string
+      source:
+        $ref: '#/definitions/navi.RoadOutputPoint'
+      target:
+        $ref: '#/definitions/navi.RoadOutputPoint'
+    type: object
+  navi.RoadOutputPoint:
+    properties:
+      nodeId:
+        type: integer
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - x
+    - "y"
+    type: object
+  navi.ShortestPathInput:
+    properties:
+      mapId:
+        type: string
+      nodeId:
+        type: integer
+      start:
+        $ref: '#/definitions/navi.Point'
+      terminalId:
+        type: integer
+    required:
+    - mapId
+    - nodeId
+    type: object
+  navi.TerminalEditInput:
+    properties:
+      personPoint:
+        $ref: '#/definitions/navi.Point'
+      terminalId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - personPoint
+    - terminalId
+    - x
+    - "y"
+    type: object
+  navi.TerminalInput:
+    properties:
+      mapId:
+        type: string
+      personPoint:
+        $ref: '#/definitions/navi.Point'
+      terminalId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - mapId
+    - personPoint
+    - terminalId
+    - x
+    - "y"
+    type: object
+  navi.TerminalOutput:
+    properties:
+      id:
+        type: integer
+      mapId:
+        type: string
+      personPoint:
+        $ref: '#/definitions/navi.Point'
+      terminalId:
+        type: string
+      x:
+        type: number
+      "y":
+        type: number
+    required:
+    - mapId
+    - personPoint
+    - terminalId
+    - x
+    - "y"
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Api service for found the shortest path.
+  title: Navi API service
+  version: "1.0"
+paths:
+  /areas:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/navi.AreaOutput'
+            type: array
+      summary: Find all areas
+      tags:
+      - Area
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Area input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.AreaInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.AreaOutput'
+      summary: Create new area
+      tags:
+      - Area
+  /areas/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Area ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Remove one area by id
+      tags:
+      - Area
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Area ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Area input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.AreaEditInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.AreaOutput'
+      summary: Update exist area
+      tags:
+      - Area
+  /points:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/navi.MapPointOutput'
+            type: array
+      summary: Find all MapPoints
+      tags:
+      - MapPoint
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: MapPoint input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.MapPointInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.MapPointOutput'
+      summary: Create new MapPoint
+      tags:
+      - MapPoint
+  /points/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: MapPoint ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Remove one MapPoint by id
+      tags:
+      - MapPoint
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: MapPoint ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: MapPoint input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.MapPointEditInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.MapPointOutput'
+      summary: Update exist MapPoint
+      tags:
+      - MapPoint
+  /roads:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Map ID to filter roads
+        in: query
+        name: mapId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/navi.RoadOutput'
+            type: array
+      summary: Find all roads
+      tags:
+      - Road
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Road input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.RoadInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.RoadOutput'
+      summary: Create new road
+      tags:
+      - Road
+  /roads/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Road ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Remove one road by id
+      tags:
+      - Road
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Road ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Road input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.RoadEditInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.RoadOutput'
+      summary: Update exist road
+      tags:
+      - Road
+  /roads/shortest-path:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Road input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.ShortestPathInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/navi.Point'
+            type: array
+      summary: Find the shortest path
+      tags:
+      - Road
+  /terminals:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/navi.TerminalOutput'
+            type: array
+      summary: Find all Terminals
+      tags:
+      - Terminal
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: MapPoint input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.TerminalInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.TerminalOutput'
+      summary: Create new Terminal
+      tags:
+      - Terminal
+  /terminals/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Terminal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Remove one Terminal by id
+      tags:
+      - Terminal
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Terminal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Terminal input data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/navi.TerminalEditInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navi.TerminalOutput'
+      summary: Update exist Terminal
+      tags:
+      - Terminal
+swagger: "2.0"

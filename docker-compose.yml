@@ -1,0 +1,84 @@
+services:
+  php:
+    container_name: app-php
+    build:
+      context: .
+      dockerfile: ./php/Dockerfile
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: "pgsql://postgres:postgres@postgres:5432/admin?serverVersion=15&charset=utf8"
+    depends_on:
+      - postgres
+    networks:
+      - app
+    volumes:
+      - ./php:/var/www/app
+    expose:
+      - "9000"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:9000/fpm-ping" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    container_name: app-nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    depends_on:
+      - php
+    networks:
+      - app
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./php/public:/var/www/app/public
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8080" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    container_name: app-postgres
+    platform: linux/amd64
+    image: postgis/postgis:latest
+    build:
+      context: ./postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: navi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/dump:/dump
+    networks:
+      - app
+    restart: always
+
+  navi:
+    container_name: app-navi
+    depends_on:
+      - nginx
+      - postgres
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=navi port=5432 sslmode=disable TimeZone=Europe/Moscow"
+    build:
+      context: ./navi
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./navi:/app
+    expose:
+      - "8008"
+    networks:
+      - app
+    restart: always
+
+volumes:
+  postgres_data:
+
+networks:
+  app:

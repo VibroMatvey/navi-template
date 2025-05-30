@@ -1,26 +1,13 @@
-.idea
-/public/images
 ###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
-composer.lock
+/php/node_modules
+/php/.env.local
+/php/.env.local.php
+/php/.env.*.local
+/php/config/secrets/prod/prod.decrypt.private.php
+/php/public/bundles/
+/php/var/
+/php/vendor/
+/php/public/uploads/*
+.idea
+.DS_STORE
 ###< symfony/framework-bundle ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
-
-###> symfony/phpunit-bridge ###
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-
-###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
-###< lexik/jwt-authentication-bundle ###

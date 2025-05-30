@@ -1,0 +1,14 @@
+framework:
+  messenger:
+    default_bus: command.bus
+    transports:
+      async_commands: '%env(MESSENGER_TRANSPORT_DSN)%'
+
+    buses:
+      command.bus:
+        middleware:
+          - validation
+          - dispatch_after_current_bus
+      query.bus:
+        middleware:
+          - validation

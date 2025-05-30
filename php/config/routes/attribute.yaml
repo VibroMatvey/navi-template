@@ -1,0 +1,15 @@
+Dashboard:
+  resource: ../../src/Shared/Presentation/EasyAdmin/Crud
+  type: attribute
+
+Login:
+  resource: ../../src/User/Presentation/EasyAdmin/Crud
+  type: attribute
+
+Navi:
+  resource: ../../src/Navi/Presentation/ApiPlatform/Controller
+  type: attribute
+
+kernel:
+  resource: ../../src/Shared/Kernel.php
+  type: attribute

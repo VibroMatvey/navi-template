@@ -1,0 +1,9 @@
+kernel:
+    resource: ../src/Shared/Kernel.php
+    type: attribute
+
+home:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /admin
