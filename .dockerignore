@@ -1,0 +1,15 @@
+/php/node_modules
+/php/vendor
+/php/var
+/php/public/bundles
+/php/tests
+/php/Dockerfile
+/php/symfony.lock
+#/admin/public/uploads
+.git
+.gitignore
+.idea
+tests/
+*.md
+*.yml
+.env*
